@@ -85,6 +85,14 @@ function getThrowWithMouseConfiguration(): boolean {
         .get<boolean>('throwBallWithMouse', true);
 }
 
+function updateThrowWithMouseConfiguration() {
+    const config = vscode.workspace
+        .getConfiguration('vscode-pets');
+    const newValue = !config.get<boolean>('throwBallWithMouse', true);
+    config
+        .update('throwBallWithMouse', newValue, vscode.ConfigurationTarget.Global);
+}
+
 function updatePanelThrowWithMouse(): void {
     const panel = getPetPanel();
     if (panel !== undefined) {
@@ -363,6 +371,12 @@ export function activate(context: vscode.ExtensionContext) {
                 panel.throwBall();
             }
         }),
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('vscode-pets.throw-with-mouse',
+            updateThrowWithMouseConfiguration
+        ),
     );
 
     context.subscriptions.push(
@@ -801,7 +815,7 @@ class PetWebviewContainer implements IPetPanel {
         webview.html = this._getHtmlForWebview(webview);
     }
 
-    public update() {}
+    public update() { }
 
     protected _getHtmlForWebview(webview: vscode.Webview) {
         // Local path to main script run in the webview
@@ -853,11 +867,9 @@ class PetWebviewContainer implements IPetPanel {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
 				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${
-                    webview.cspSource
-                } 'nonce-${nonce}'; img-src ${
-            webview.cspSource
-        } https:; script-src 'nonce-${nonce}';
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource
+            } 'nonce-${nonce}'; img-src ${webview.cspSource
+            } https:; script-src 'nonce-${nonce}';
                 font-src ${webview.cspSource};">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet" nonce="${nonce}">
